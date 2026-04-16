@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap" rel="stylesheet">
-<script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,7 +42,111 @@
     min-height: 100vh;
   }
 
-  /* topbar handled by Tailwind */
+  /* ── HEADER ── */
+  .site-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .site-header-inner {
+    max-width: 1152px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  @media (min-width: 768px) { .site-header-inner { padding: 0 48px; } }
+  @media (min-width: 1024px) { .site-header-inner { padding: 0 64px; } }
+
+  .header-logo {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .header-logo:hover { opacity: 0.75; }
+  .header-logo em { font-style: normal; color: #059669; }
+
+  .header-nav {
+    display: none;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+  @media (min-width: 768px) { .header-nav { display: flex; } }
+  .header-nav a {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #475569;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .header-nav a:hover { color: #059669; }
+  .header-nav a.active { color: #059669; }
+
+  .burger-btn {
+    width: 40px; height: 40px;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    gap: 5px;
+    background: none; border: none;
+    cursor: pointer; padding: 0;
+    position: relative; z-index: 110;
+  }
+  @media (min-width: 768px) { .burger-btn { display: none; } }
+  .burger-line {
+    width: 22px; height: 2px;
+    background: #0f172a;
+    border-radius: 2px;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    display: block;
+  }
+
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    background: #ffffff;
+    z-index: 105;
+    transform: translateX(100%);
+    transition: transform 0.45s cubic-bezier(0.77, 0, 0.175, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 32px;
+  }
+  .mobile-menu.open { transform: translateX(0); }
+  .mobile-nav {
+    display: flex; flex-direction: column;
+    align-items: center; gap: 28px;
+    list-style: none;
+  }
+  .mobile-nav a {
+    font-size: 28px; font-weight: 700;
+    color: #0f172a; text-decoration: none;
+    transition: color 0.15s;
+  }
+  .mobile-nav a:hover { color: #059669; }
+  .mobile-footer-text {
+    position: absolute;
+    bottom: 40px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #94a3b8;
+  }
+  .header-spacer { height: 80px; }
 
   /* ── PAGE ── */
   .page { max-width: 900px; margin: 0 auto; padding: 0 20px 80px; }
@@ -470,15 +573,53 @@
 </head>
 <body class="risk-colors">
 
-<!-- HEADER — identic cu merglamunte.ro -->
-<header class="max-w-6xl mx-auto mb-0 flex justify-between items-center px-6 md:px-12 lg:px-16 pt-6 md:pt-12 lg:pt-16 pb-8">
-  <div class="text-3xl font-black tracking-tight">
-    merglamunte<span class="text-emerald-600">.ro</span>
-  </div>
-  <div class="hidden md:block text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-400">
-    Risc avalanșă · buletin zilnic
+<header class="site-header">
+  <div class="site-header-inner">
+    <a href="/" class="header-logo">merglamunte<em>.ro</em></a>
+    <ul class="header-nav">
+      <li><a href="https://merglamunte.ro/trasee">Generator Trasee</a></li>
+      <li><a href="https://meteo.merglamunte.ro">Prognoza</a></li>
+      <li><a href="https://merglamunte.ro/avalansa" class="active">Risc Avalanșă</a></li>
+      <li><a href="https://merglamunte.ro/cabane">Cabane</a></li>
+    </ul>
+    <button class="burger-btn" id="burger-btn" aria-label="Meniu">
+      <span class="burger-line" id="bl1"></span>
+      <span class="burger-line" id="bl2"></span>
+      <span class="burger-line" id="bl3"></span>
+    </button>
   </div>
 </header>
+
+<div id="mobile-menu" class="mobile-menu">
+  <ul class="mobile-nav">
+    <li><a href="https://merglamunte.ro/trasee">Generator Trasee</a></li>
+    <li><a href="https://meteo.merglamunte.ro">Prognoza Meteo</a></li>
+    <li><a href="https://merglamunte.ro/avalansa">Risc Avalanșă</a></li>
+    <li><a href="https://merglamunte.ro/cabane">Cabane</a></li>
+  </ul>
+  <div class="mobile-footer-text">Tot ce ai nevoie ca să mergi la munte.</div>
+</div>
+
+<div class="header-spacer"></div>
+
+<script>
+  (function() {
+    const btn = document.getElementById('burger-btn');
+    const menu = document.getElementById('mobile-menu');
+    const bl1 = document.getElementById('bl1');
+    const bl2 = document.getElementById('bl2');
+    const bl3 = document.getElementById('bl3');
+    let open = false;
+    btn.addEventListener('click', () => {
+      open = !open;
+      menu.classList.toggle('open', open);
+      document.body.style.overflow = open ? 'hidden' : '';
+      bl1.style.transform = open ? 'translateY(7px) rotate(45deg)' : '';
+      bl2.style.opacity   = open ? '0' : '1';
+      bl3.style.transform = open ? 'translateY(-7px) rotate(-45deg)' : '';
+    });
+  })();
+</script>
 
 <!-- HERO -->
 <div class="hero">
