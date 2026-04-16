@@ -1,0 +1,38 @@
+name: Actualizare buletin avalanșă
+
+on:
+  schedule:
+    # Rulează zilnic la 07:00 UTC (09:00 ora României)
+    # ANM publică de obicei buletinul în jurul dimineții
+    - cron: '0 7 * * *'
+  workflow_dispatch:
+    # Permite rulare manuală din GitHub UI
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Rulează parserul
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python parse.py
+
+      - name: Commit și push data.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data.json
+          # Commit doar dacă există modificări
+          git diff --staged --quiet || git commit -m "buletin: actualizare automată $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
