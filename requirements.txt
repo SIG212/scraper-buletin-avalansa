@@ -1,0 +1,3 @@
+# Scriptul foloseste doar stdlib Python 3.8+
+# urllib, json, base64, os, datetime — toate built-in
+# Nicio dependenta externa necesara

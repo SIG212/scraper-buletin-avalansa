@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Risc Avalanșă — MergLaMunte</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --white: #FFFFFF;
+    --emerald: #059669;
+    --emerald-dark: #047857;
+    --sky: #0284C7;
+    --sky-dark: #0369A1;
+    --slate: #0F172A;
+    --slate-mid: #1E293B;
+    --slate-light: #334155;
+    --orange: #F97316;
+    --zinc: #F4F4F5;
+    --zinc-dark: #E4E4E7;
+    --text: #0F172A;
+    --text-muted: #64748B;
+    --text-faint: #94A3B8;
+    --r0: #94A3B8; --r0-bg: #F1F5F9;
+    --r1: #059669; --r1-bg: #ECFDF5;
+    --r2: #D97706; --r2-bg: #FFFBEB;
+    --r3: #EA580C; --r3-bg: #FFF7ED;
+    --r4: #DC2626; --r4-bg: #FEF2F2;
+    --r5: #7C3AED; --r5-bg: #F5F3FF;
+  }
+
+  html { font-size: 15px; scroll-behavior: smooth; }
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--white);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* topbar handled by Tailwind */
+
+  /* ── PAGE ── */
+  .page { max-width: 900px; margin: 0 auto; padding: 0 20px 80px; }
+
+  /* ── HERO ── */
+  .hero {
+    background: var(--slate);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+  .hero::before {
+    content: '\f7a3';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: -20px; bottom: -30px;
+    font-size: 180px;
+    color: rgba(255,255,255,0.05);
+    transform: rotate(-10deg);
+    pointer-events: none;
+    line-height: 1;
+  }
+  .hero-inner { max-width: 900px; margin: 0 auto; padding: 48px 20px 52px; position: relative; z-index: 1; }
+  .hero-supertag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--emerald);
+    background: rgba(5,150,105,0.15);
+    border: 1px solid rgba(5,150,105,0.3);
+    padding: 4px 12px;
+    border-radius: 2rem;
+    margin-bottom: 16px;
+  }
+  .hero-title {
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .hero-title span { color: var(--orange); }
+  .hero-sub {
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    max-width: 520px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+  .hero-alert {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(249,115,22,0.15);
+    border: 1px solid rgba(249,115,22,0.4);
+    color: var(--orange);
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 2rem;
+  }
+  .hero-alert i { font-size: 12px; }
+
+  /* ── SECTION HEADER ── */
+  .section-head {
+    margin: 36px 0 16px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .section-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--text-faint);
+  }
+  .section-title {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  /* ── STAT CARDS ── */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 600px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .stat-card {
+    background: var(--zinc);
+    border-radius: 1.5rem;
+    padding: 18px 16px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(15,23,42,0.1); }
+  .stat-card.accent { background: var(--slate); }
+  .stat-card .wm {
+    position: absolute; right: -6px; bottom: -8px;
+    font-size: 56px; opacity: 0.08;
+    transform: rotate(-8deg); pointer-events: none;
+    line-height: 1;
+  }
+  .stat-card.accent .wm { opacity: 0.12; }
+  .sc-tag {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.12em; color: var(--text-faint); margin-bottom: 6px;
+  }
+  .stat-card.accent .sc-tag { color: rgba(255,255,255,0.4); }
+  .sc-val {
+    font-size: 28px; font-weight: 900; color: var(--text);
+    letter-spacing: -0.02em; line-height: 1;
+  }
+  .stat-card.accent .sc-val { color: var(--white); }
+  .sc-sub {
+    font-size: 11px; font-weight: 500; color: var(--text-muted);
+    margin-top: 4px; line-height: 1.4;
+  }
+  .stat-card.accent .sc-sub { color: rgba(255,255,255,0.45); }
+
+  /* ── FILTERS ── */
+  .filters {
+    display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px;
+  }
+  .fbtn {
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 7px 16px; border-radius: 2rem;
+    border: 1.5px solid var(--zinc-dark);
+    background: var(--white); color: var(--text-muted);
+    cursor: pointer; transition: all 0.15s;
+  }
+  .fbtn:hover { border-color: var(--slate); color: var(--slate); }
+  .fbtn.active { background: var(--slate); border-color: var(--slate); color: var(--white); }
+  .fbtn.active.f-risc3 { background: var(--r3); border-color: var(--r3); }
+  .fbtn.active.f-risc2 { background: var(--r2); border-color: var(--r2); }
+
+  /* ── MASIV CARDS ── */
+  .masive-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  @media (max-width: 640px) { .masive-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 400px) { .masive-grid { grid-template-columns: 1fr; } }
+
+  .mcard {
+    background: var(--zinc);
+    border-radius: 2rem;
+    padding: 20px 18px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 2px solid transparent;
+  }
+  .mcard:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(15,23,42,0.12); }
+  .mcard.active {
+    border-color: var(--slate);
+    background: var(--slate);
+  }
+  .mcard.hidden { display: none; }
+
+  .mcard-wm {
+    position: absolute; right: -8px; bottom: -10px;
+    font-size: 64px; opacity: 0.07;
+    transform: rotate(-8deg); pointer-events: none;
+    line-height: 1;
+  }
+  .mcard.active .mcard-wm { opacity: 0.1; color: white; }
+
+  .mc-tag {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--text-faint);
+    margin-bottom: 6px;
+  }
+  .mcard.active .mc-tag { color: rgba(255,255,255,0.4); }
+
+  .mc-name {
+    font-size: 15px; font-weight: 900; color: var(--text);
+    line-height: 1.2; margin-bottom: 14px;
+    letter-spacing: -0.01em;
+  }
+  .mcard.active .mc-name { color: var(--white); }
+
+  .mc-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 700;
+    padding: 5px 12px; border-radius: 2rem;
+    margin-bottom: 10px;
+  }
+
+  .mc-alts { display: flex; flex-direction: column; gap: 5px; }
+  .mc-alt {
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 11px;
+  }
+  .mc-alt-label {
+    font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: var(--text-faint);
+  }
+  .mcard.active .mc-alt-label { color: rgba(255,255,255,0.35); }
+  .mc-alt-pill {
+    font-size: 10px; font-weight: 700;
+    padding: 3px 9px; border-radius: 2rem;
+  }
+
+  .mc-scale {
+    display: flex; gap: 3px; margin-top: 12px;
+  }
+  .mc-dot { height: 3px; flex: 1; border-radius: 2px; background: rgba(0,0,0,0.1); }
+  .mcard.active .mc-dot { background: rgba(255,255,255,0.1); }
+
+  /* ── DETAIL PANEL ── */
+  .detail-wrap {
+    grid-column: 1 / -1;
+    animation: fadeSlide 0.18s ease;
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .detail-panel {
+    background: var(--slate);
+    border-radius: 2rem;
+    padding: 28px;
+    color: var(--white);
+    position: relative;
+    overflow: hidden;
+  }
+  .detail-panel::before {
+    content: '\f7a3';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute; right: -10px; bottom: -20px;
+    font-size: 140px; opacity: 0.05;
+    transform: rotate(-8deg); pointer-events: none;
+  }
+
+  .dp-head {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 20px; padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .dp-badge {
+    width: 48px; height: 48px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 900; flex-shrink: 0;
+  }
+  .dp-title { font-size: 18px; font-weight: 900; letter-spacing: -0.01em; }
+  .dp-sub { font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 500; margin-top: 2px; }
+
+  .dp-alts {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 500px) { .dp-alts { grid-template-columns: 1fr; } }
+
+  .dp-alt-block {
+    background: rgba(255,255,255,0.06);
+    border-radius: 1.25rem;
+    padding: 16px;
+  }
+  .dp-alt-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.14em; color: rgba(255,255,255,0.35);
+    margin-bottom: 8px;
+  }
+  .dp-alt-risc {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 900;
+    padding: 5px 12px; border-radius: 2rem; margin-bottom: 10px;
+  }
+  .dp-alt-text {
+    font-size: 12px; font-weight: 400; color: rgba(255,255,255,0.55);
+    line-height: 1.65;
+  }
+
+  .dp-general {
+    background: rgba(255,255,255,0.06);
+    border-radius: 1.25rem; padding: 16px; margin-bottom: 16px;
+  }
+
+  /* ── ZAPADA ── */
+  .zapada-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  @media (max-width: 600px) { .zapada-grid { grid-template-columns: 1fr; } }
+
+  .zapada-region {
+    background: var(--zinc);
+    border-radius: 2rem;
+    padding: 20px;
+    position: relative; overflow: hidden;
+  }
+  .zapada-region-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.14em; color: var(--text-faint);
+    margin-bottom: 14px;
+  }
+  .zapada-wm {
+    position: absolute; right: -6px; bottom: -8px;
+    font-size: 56px; opacity: 0.07;
+    transform: rotate(-8deg); pointer-events: none;
+  }
+  .zapada-list { display: flex; flex-direction: column; gap: 8px; position: relative; z-index: 1; }
+  .zapada-row { display: flex; flex-direction: column; gap: 3px; }
+  .zapada-row-top { display: flex; justify-content: space-between; align-items: baseline; }
+  .zapada-statie { font-size: 12px; font-weight: 700; color: var(--text); }
+  .zapada-cm { font-size: 14px; font-weight: 900; color: var(--sky); font-variant-numeric: tabular-nums; }
+  .zapada-cm.petice { color: var(--text-faint); font-size: 11px; font-weight: 500; }
+  .zapada-bar-track { height: 3px; background: var(--zinc-dark); border-radius: 2px; }
+  .zapada-bar-fill { height: 3px; border-radius: 2px; background: var(--sky); transition: width 0.6s ease; }
+
+  /* ── TEMPERATURI ── */
+  .temp-card {
+    background: var(--slate);
+    border-radius: 2rem;
+    padding: 24px;
+    color: var(--white);
+    position: relative; overflow: hidden;
+  }
+  .temp-card::before {
+    content: '\f2c9';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute; right: -8px; bottom: -10px;
+    font-size: 100px; opacity: 0.06;
+    transform: rotate(-8deg); pointer-events: none;
+  }
+  .temp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 460px) { .temp-grid { grid-template-columns: 1fr; } }
+  .temp-zone { }
+  .temp-zone-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.14em; color: rgba(255,255,255,0.35);
+    margin-bottom: 10px;
+  }
+  .temp-vals { display: flex; gap: 16px; }
+  .temp-item { }
+  .temp-kind { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(255,255,255,0.3); margin-bottom: 2px; }
+  .temp-val { font-size: 22px; font-weight: 900; letter-spacing: -0.02em; }
+  .temp-cold { color: #7DD3FC; }
+  .temp-warm { color: #FCA5A5; }
+
+  /* ── PROGNOZA ── */
+  .prognoza-card {
+    background: var(--sky);
+    border-radius: 2rem;
+    padding: 24px;
+    color: var(--white);
+    position: relative; overflow: hidden;
+  }
+  .prognoza-card::before {
+    content: '\f0c2';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute; right: -8px; bottom: -10px;
+    font-size: 100px; opacity: 0.1;
+    transform: rotate(-8deg); pointer-events: none;
+  }
+  .prognoza-tag {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.14em; color: rgba(255,255,255,0.5);
+    margin-bottom: 8px;
+  }
+  .prognoza-text {
+    font-size: 13px; font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    line-height: 1.7;
+  }
+
+  /* ── BOTTOM GRID (temp + prognoza) ── */
+  .bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+    gap: 12px;
+  }
+  @media (max-width: 560px) { .bottom-grid { grid-template-columns: 1fr; } }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 48px;
+    padding: 24px;
+    background: var(--zinc);
+    border-radius: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .footer-l { font-size: 12px; font-weight: 500; color: var(--text-muted); line-height: 1.7; }
+  .footer-l a { color: var(--sky); text-decoration: none; font-weight: 700; }
+  .footer-l a:hover { text-decoration: underline; }
+  .footer-r { font-size: 11px; color: var(--text-faint); text-align: right; line-height: 1.7; }
+
+  /* ── RISK HELPERS ── */
+  .risk-colors {
+    /* r0 */ --rc0-bg: rgba(148,163,184,0.18); --rc0-text: #64748B;
+    /* r1 */ --rc1-bg: rgba(5,150,105,0.15);  --rc1-text: #059669;
+    /* r2 */ --rc2-bg: rgba(217,119,6,0.18);  --rc2-text: #D97706;
+    /* r3 */ --rc3-bg: rgba(234,88,12,0.18);  --rc3-text: #EA580C;
+    /* r4 */ --rc4-bg: rgba(220,38,38,0.18);  --rc4-text: #DC2626;
+    /* r5 */ --rc5-bg: rgba(124,58,237,0.18); --rc5-text: #7C3AED;
+  }
+</style>
+</head>
+<body class="risk-colors">
+
+<!-- HEADER — identic cu merglamunte.ro -->
+<header class="max-w-6xl mx-auto mb-0 flex justify-between items-center px-6 md:px-12 lg:px-16 pt-6 md:pt-12 lg:pt-16 pb-8">
+  <div class="text-3xl font-black tracking-tight">
+    merglamunte<span class="text-emerald-600">.ro</span>
+  </div>
+  <div class="hidden md:block text-[11px] font-extrabold uppercase tracking-[0.2em] text-slate-400">
+    Risc avalanșă · buletin zilnic
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-supertag">Buletin Nivometeorologic</div>
+    <h1 class="hero-title">Risc <span>Avalanșă</span><br>Carpații României</h1>
+    <p class="hero-sub" id="hero-sub">Se încarcă datele…</p>
+    <div class="hero-alert" id="hero-alert" style="display:none">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <span id="hero-alert-text"></span>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- STATS -->
+  <div class="section-head">
+    <span class="section-tag">Rezumat</span>
+    <span class="section-title">Situație curentă</span>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card accent">
+      <div class="sc-tag">Risc maxim</div>
+      <div class="sc-val" id="s-max">—</div>
+      <div class="sc-sub" id="s-max-sub">—</div>
+      <div class="wm"><i class="fa-solid fa-triangle-exclamation"></i></div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-tag">Masive monitorizate</div>
+      <div class="sc-val" id="s-total">—</div>
+      <div class="sc-sub">în buletinul de azi</div>
+      <div class="wm"><i class="fa-solid fa-mountain"></i></div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-tag">Stații de zăpadă</div>
+      <div class="sc-val" id="s-statii">—</div>
+      <div class="sc-sub">date ANM directe</div>
+      <div class="wm"><i class="fa-solid fa-snowflake"></i></div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-tag">Perioadă valabilă</div>
+      <div class="sc-val" id="s-period">—</div>
+      <div class="sc-sub" id="s-period-sub">interval buletin</div>
+      <div class="wm"><i class="fa-solid fa-calendar"></i></div>
+    </div>
+  </div>
+
+  <!-- MASIVE -->
+  <div class="section-head">
+    <span class="section-tag">Date ANM</span>
+    <span class="section-title">Masive montane</span>
+  </div>
+
+  <div class="filters" id="filters">
+    <button class="fbtn active" onclick="setFilter('all',this)">Toate</button>
+    <button class="fbtn f-risc3" onclick="setFilter('r3',this)">Risc ≥ 3</button>
+    <button class="fbtn f-risc2" onclick="setFilter('r2',this)">Risc ≥ 2</button>
+  </div>
+
+  <div class="masive-grid" id="masive-grid"><!-- JS --></div>
+
+  <!-- ZAPADA -->
+  <div class="section-head">
+    <span class="section-tag">Strat de zăpadă</span>
+    <span class="section-title">Stații meteorologice</span>
+  </div>
+  <div class="zapada-grid" id="zapada-grid"><!-- JS --></div>
+
+  <!-- BOTTOM: TEMP + PROGNOZA -->
+  <div class="section-head">
+    <span class="section-tag">Prognoză</span>
+    <span class="section-title">Meteo & temperaturi</span>
+  </div>
+  <div class="bottom-grid">
+    <div class="temp-card" id="temp-card"><!-- JS --></div>
+    <div class="prognoza-card" id="prognoza-card"><!-- JS --></div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-l">
+      Sursă: <a href="https://www.meteoromania.ro/Upload-Produse/nivologie/nivologie.pdf" target="_blank">meteoromania.ro · buletin nivometeorologic</a><br>
+      Ultima actualizare: <span id="footer-date">—</span>
+    </div>
+    <div class="footer-r">
+      Datele sunt preluate automat din buletinul ANM.<br>
+      Verificați întotdeauna sursa oficială.
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DATA_URL = 'data.json';
+
+const RISK_LABEL = ['Necunoscut','Redus','Moderat','Însemnat','Mare','Foarte mare'];
+const RISK_ICON  = ['fa-question','fa-check','fa-circle-exclamation','fa-triangle-exclamation','fa-fire','fa-skull'];
+
+function riskColors(n, dark = false) {
+  const map = [
+    { bg: 'rgba(148,163,184,0.18)', text: '#94A3B8', dbg: 'rgba(148,163,184,0.25)', dtext: '#CBD5E1' },
+    { bg: 'rgba(5,150,105,0.15)',   text: '#059669', dbg: 'rgba(5,150,105,0.25)',   dtext: '#34D399' },
+    { bg: 'rgba(217,119,6,0.18)',   text: '#D97706', dbg: 'rgba(217,119,6,0.28)',   dtext: '#FCD34D' },
+    { bg: 'rgba(234,88,12,0.2)',    text: '#EA580C', dbg: 'rgba(234,88,12,0.32)',   dtext: '#FB923C' },
+    { bg: 'rgba(220,38,38,0.18)',   text: '#DC2626', dbg: 'rgba(220,38,38,0.32)',   dtext: '#F87171' },
+    { bg: 'rgba(124,58,237,0.18)',  text: '#7C3AED', dbg: 'rgba(124,58,237,0.32)', dtext: '#A78BFA' },
+  ];
+  const c = map[Math.min(n, 5)] || map[0];
+  return dark ? { bg: c.dbg, text: c.dtext } : { bg: c.bg, text: c.text };
+}
+
+function maxRisk(masiv) {
+  const r = masiv.risc;
+  return Math.max(r.peste_1800m || 0, r.sub_1800m || 0, r.general || 0);
+}
+
+let activeKey = null;
+let allMasive = [];
+
+// ── RENDER MASIV CARD ────────────────────────────────────────────────────────
+function renderCard(masiv, idx) {
+  const max = maxRisk(masiv);
+  const { bg, text } = riskColors(max);
+  const dots = [1,2,3,4,5].map(i => {
+    const { text: dc } = riskColors(max);
+    return `<div class="mc-dot" style="${i<=max ? `background:${dc};opacity:0.6` : ''}"></div>`;
+  }).join('');
+
+  const altRows = masiv.risc.general != null
+    ? `<div class="mc-alt">
+        <span class="mc-alt-label">General</span>
+        <span class="mc-alt-pill" style="background:${bg};color:${text}">${masiv.risc.general} · ${RISK_LABEL[masiv.risc.general]}</span>
+       </div>`
+    : `
+      <div class="mc-alt">
+        <span class="mc-alt-label">+1800m</span>
+        <span class="mc-alt-pill" style="background:${riskColors(masiv.risc.peste_1800m||0).bg};color:${riskColors(masiv.risc.peste_1800m||0).text}">${masiv.risc.peste_1800m} · ${RISK_LABEL[masiv.risc.peste_1800m||0]}</span>
+      </div>
+      <div class="mc-alt">
+        <span class="mc-alt-label">-1800m</span>
+        <span class="mc-alt-pill" style="background:${riskColors(masiv.risc.sub_1800m||0).bg};color:${riskColors(masiv.risc.sub_1800m||0).text}">${masiv.risc.sub_1800m} · ${RISK_LABEL[masiv.risc.sub_1800m||0]}</span>
+      </div>`;
+
+  return `
+    <div class="mcard" id="mcard-${idx}" data-idx="${idx}" data-max="${max}" onclick="toggleDetail(${idx})">
+      <div class="mcard-wm"><i class="fa-solid fa-mountain"></i></div>
+      <div class="mc-tag">Masiv montan</div>
+      <div class="mc-name">${masiv.nume}</div>
+      <div class="mc-badge" style="background:${bg};color:${text}">
+        <i class="fa-solid ${RISK_ICON[max]}" style="font-size:10px"></i>
+        ${max} — ${RISK_LABEL[max]}
+      </div>
+      <div class="mc-alts">${altRows}</div>
+      <div class="mc-scale">${dots}</div>
+    </div>`;
+}
+
+// ── RENDER DETAIL ────────────────────────────────────────────────────────────
+function renderDetail(masiv) {
+  const max = maxRisk(masiv);
+  const { bg, text } = riskColors(max, true);
+
+  const altBlock = (label, nivel, textDesc) => {
+    if (nivel == null) return '';
+    const { bg: ab, text: at } = riskColors(nivel, true);
+    return `
+      <div class="dp-alt-block">
+        <div class="dp-alt-label">${label}</div>
+        <div class="dp-alt-risc" style="background:${ab};color:${at}">
+          <i class="fa-solid ${RISK_ICON[nivel]}" style="font-size:10px"></i>
+          ${nivel} — ${RISK_LABEL[nivel]}
+        </div>
+        ${textDesc ? `<div class="dp-alt-text">${textDesc}</div>` : ''}
+      </div>`;
+  };
+
+  let content;
+  if (masiv.risc.general != null) {
+    content = `<div class="dp-general">
+      <div class="dp-alt-label">Risc general</div>
+      <div class="dp-alt-risc" style="background:${bg};color:${text}">
+        <i class="fa-solid ${RISK_ICON[masiv.risc.general]}" style="font-size:10px"></i>
+        ${masiv.risc.general} — ${RISK_LABEL[masiv.risc.general]}
+      </div>
+      <div class="dp-alt-text" style="color:rgba(255,255,255,0.55);font-size:12px;line-height:1.65;margin-top:8px">${typeof masiv.text_descriptiv === 'string' ? masiv.text_descriptiv : ''}</div>
+    </div>`;
+  } else {
+    const td = masiv.text_descriptiv || {};
+    content = `<div class="dp-alts">
+      ${altBlock('Peste 1800 m', masiv.risc.peste_1800m, td.peste_1800m)}
+      ${altBlock('Sub 1800 m', masiv.risc.sub_1800m, td.sub_1800m)}
+    </div>`;
+  }
+
+  return `
+    <div class="detail-wrap" id="detail-wrap">
+      <div class="detail-panel">
+        <div class="dp-head">
+          <div class="dp-badge" style="background:${bg};color:${text}">${max}</div>
+          <div>
+            <div class="dp-title">${masiv.nume}</div>
+            <div class="dp-sub">Risc maxim: ${RISK_LABEL[max]} (${max}/5) · apasă din nou pentru a închide</div>
+          </div>
+        </div>
+        ${content}
+      </div>
+    </div>`;
+}
+
+function toggleDetail(idx) {
+  const grid = document.getElementById('masive-grid');
+  const existing = document.getElementById('detail-wrap');
+  if (existing) existing.remove();
+  grid.querySelectorAll('.mcard').forEach(c => {
+    c.classList.remove('active');
+    c.style.background = '';
+    c.querySelector('.mc-tag') && (c.querySelector('.mc-tag').style.color = '');
+    c.querySelector('.mc-name') && (c.querySelector('.mc-name').style.color = '');
+  });
+
+  if (activeKey === idx) { activeKey = null; return; }
+  activeKey = idx;
+
+  const card = document.getElementById('mcard-' + idx);
+  card.classList.add('active');
+
+  const wrap = document.createElement('div');
+  wrap.innerHTML = renderDetail(allMasive[idx]);
+  card.after(wrap.firstElementChild);
+  setTimeout(() => document.getElementById('detail-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 60);
+}
+
+// ── RENDER ZAPADA ────────────────────────────────────────────────────────────
+function renderZapada(strat) {
+  const icons = { Carpatii_Meridionali: 'fa-sun', Carpatii_Orientali: 'fa-wind', Carpatii_Occidentali: 'fa-cloud' };
+  const labels = { Carpatii_Meridionali: 'Carpații Meridionali', Carpatii_Orientali: 'Carpații Orientali', Carpatii_Occidentali: 'Carpații Occidentali' };
+  const maxCm = Math.max(...Object.values(strat).flat().map(s => typeof s.cm === 'number' ? s.cm : 0));
+
+  return Object.entries(strat).map(([reg, statii]) => `
+    <div class="zapada-region">
+      <div class="zapada-wm"><i class="fa-solid ${icons[reg]||'fa-mountain'}"></i></div>
+      <div class="zapada-region-title">${labels[reg]||reg}</div>
+      <div class="zapada-list">
+        ${statii.map(s => {
+          const isPetice = typeof s.cm !== 'number';
+          const pct = isPetice ? 2 : Math.max(3, Math.round((s.cm / maxCm) * 100));
+          return `
+          <div class="zapada-row">
+            <div class="zapada-row-top">
+              <span class="zapada-statie">${s.statie}</span>
+              <span class="zapada-cm ${isPetice ? 'petice' : ''}">${isPetice ? 'petice' : s.cm + ' cm'}</span>
+            </div>
+            <div class="zapada-bar-track"><div class="zapada-bar-fill" style="width:${pct}%"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ── RENDER TEMP ──────────────────────────────────────────────────────────────
+function renderTemp(temp) {
+  const t = temp;
+  return `
+    <div class="temp-tag" style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;color:rgba(255,255,255,0.35);margin-bottom:14px">Temperaturi prognozate</div>
+    <div class="temp-grid">
+      <div class="temp-zone">
+        <div class="temp-zone-label">Peste 1800 m</div>
+        <div class="temp-vals">
+          <div class="temp-item">
+            <div class="temp-kind">Min</div>
+            <div class="temp-val temp-cold">${t.peste_1800m.minime.replace(' grade','°')}</div>
+          </div>
+          <div class="temp-item">
+            <div class="temp-kind">Max</div>
+            <div class="temp-val temp-warm">${t.peste_1800m.maxime.replace(' grade','°')}</div>
+          </div>
+        </div>
+      </div>
+      <div class="temp-zone">
+        <div class="temp-zone-label">Sub 1800 m</div>
+        <div class="temp-vals">
+          <div class="temp-item">
+            <div class="temp-kind">Min</div>
+            <div class="temp-val temp-cold">${t.sub_1800m.minime.replace(' grade','°')}</div>
+          </div>
+          <div class="temp-item">
+            <div class="temp-kind">Max</div>
+            <div class="temp-val temp-warm">${t.sub_1800m.maxime.replace(' grade','°')}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── FILTER ───────────────────────────────────────────────────────────────────
+let currentFilter = 'all';
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const existing = document.getElementById('detail-wrap');
+  if (existing) existing.remove();
+  activeKey = null;
+  document.querySelectorAll('.mcard').forEach(c => {
+    const max = parseInt(c.dataset.max);
+    let show = true;
+    if (f === 'r3') show = max >= 3;
+    if (f === 'r2') show = max >= 2;
+    c.classList.toggle('hidden', !show);
+  });
+}
+
+// ── STATS ────────────────────────────────────────────────────────────────────
+function renderStats(data) {
+  const masive = data.buletin_nivometeorologic.masive;
+  const maxAll = Math.max(...masive.map(maxRisk));
+  const { text } = riskColors(maxAll);
+  const maxNume = masive.filter(m => maxRisk(m) === maxAll).map(m => m.nume).join(', ');
+  const totalStatii = Object.values(data.buletin_nivometeorologic.strat_zapada || {}).flat().length;
+  const perioada = data.buletin_nivometeorologic.perioada || '—';
+  const parts = perioada.split(' - ');
+
+  document.getElementById('s-max').textContent = maxAll;
+  document.getElementById('s-max').style.color = text;
+  document.getElementById('s-max-sub').textContent = RISK_LABEL[maxAll] + ' · ' + maxNume;
+  document.getElementById('s-total').textContent = masive.length;
+  document.getElementById('s-statii').textContent = totalStatii;
+  document.getElementById('s-period').textContent = parts[0]?.split(' ')[0] || '—';
+  document.getElementById('s-period-sub').textContent = perioada;
+
+  if (maxAll >= 3) {
+    document.getElementById('hero-alert').style.display = 'inline-flex';
+    document.getElementById('hero-alert-text').textContent = `Risc ${maxAll} — ${RISK_LABEL[maxAll]} în ${maxNume}`;
+  }
+
+  const rezumat = data.buletin_nivometeorologic.rezumat_general || '';
+  document.getElementById('hero-sub').textContent = rezumat + (rezumat ? ' · ' : '') + 'Sursa: meteoromania.ro';
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────────
+async function init() {
+  let data;
+  try {
+    const res = await fetch(DATA_URL);
+    if (!res.ok) throw new Error();
+    data = await res.json();
+  } catch {
+    data = SAMPLE;
+  }
+
+  const b = data.buletin_nivometeorologic;
+  allMasive = b.masive;
+
+  // topbar date
+  // topbar date removed (header is static)
+  document.getElementById('footer-date').textContent = b.perioada || '—';
+
+  renderStats(data);
+
+  // masive
+  document.getElementById('masive-grid').innerHTML = allMasive.map(renderCard).join('');
+
+  // zapada
+  if (b.strat_zapada) {
+    document.getElementById('zapada-grid').innerHTML = renderZapada(b.strat_zapada);
+  }
+
+  // temp
+  if (b.temperaturi_prognozate) {
+    document.getElementById('temp-card').innerHTML = renderTemp(b.temperaturi_prognozate);
+  }
+
+  // prognoza
+  if (b.prognoza_vreme) {
+    document.getElementById('prognoza-card').innerHTML = `
+      <div class="prognoza-tag">Prognoza vremii</div>
+      <div class="prognoza-text">${b.prognoza_vreme}</div>`;
+  }
+}
+
+// ── SAMPLE DATA ──────────────────────────────────────────────────────────────
+const SAMPLE = {"buletin_nivometeorologic":{"perioada":"15.04.2026 ora 21 - 17.04.2026 ora 21","rezumat_general":"Temperaturi în creștere. Precipitații slabe, mixte pe creste.","masive":[{"nume":"Munții Făgăraș și Bucegi","risc":{"peste_1800m":3,"sub_1800m":1},"text_descriptiv":{"peste_1800m":"Zăpada din partea superioară a stratului are în medie 5...15 cm, pe alocuri mai mult pe văile unde a fost transportată de vânt. Plăci de vânt de grosimi variabile și cornișe de mari dimensiuni. Riscul declanșării unor avalanșe de dimensiuni medii, amplificat la supraîncărcări cu turiști sau schiori - risc însemnat(3).","sub_1800m":"Stratul de zăpadă are dimensiuni reduse și este puternic umezit. Se vor putea declanșa izolat curgeri și avalanșe de dimensiuni mici - risc redus(1)."}},{"nume":"Munții Țarcu-Godeanu și Parâng-Șureanu","risc":{"peste_1800m":2,"sub_1800m":1},"text_descriptiv":{"peste_1800m":"Strat redus cu rezistență scăzută, umezit în zilele anterioare. Plăci relativ subțiri de vânt pe creste. Risc moderat (2).","sub_1800m":"Strat relativ redus și umezit. Avalanșe de topire mici posibile - risc redus(1)."}},{"nume":"Masivele Rodnei și Călimani-Bistriței","risc":{"peste_1800m":2,"sub_1800m":1},"text_descriptiv":{"peste_1800m":"Zăpadă umezită în partea superioară. Plăci de vânt pe versanții sudici și estici. Risc moderat(2).","sub_1800m":"Strat relativ redus și umezit, mai consistent la 1600+ m. Risc redus(1)."}},{"nume":"Masivul Ceahlău","risc":{"peste_1800m":null,"sub_1800m":null,"general":2},"text_descriptiv":"Strat superior umezit. Condiții pentru avalanșe de topire mici și izolat medii la supraîncărcări. Risc moderat (2)."},{"nume":"Carpații Occidentali","risc":{"peste_1800m":null,"sub_1800m":null,"general":1},"text_descriptiv":"Zăpada prezentă în special la peste 1600 m. Posibile curgeri și avalanșe mici de topire. Risc redus(1)."}],"strat_zapada":{"Carpatii_Meridionali":[{"statie":"Vârful Omu","cm":218},{"statie":"Bâlea-Lac","cm":173},{"statie":"Țarcu","cm":110},{"statie":"Cuntu","cm":9},{"statie":"Sinaia","cm":"petice"},{"statie":"Fundata","cm":"petice"}],"Carpatii_Orientali":[{"statie":"Călimani","cm":107},{"statie":"Lăcăuți","cm":102},{"statie":"Ceahlău","cm":80},{"statie":"Iezer-Rodnei","cm":38},{"statie":"Penteleu","cm":20},{"statie":"Bucin","cm":"petice"}],"Carpatii_Occidentali":[{"statie":"Vlădeasa-1800","cm":26},{"statie":"Semenic","cm":"petice"}]},"prognoza_vreme":"Vremea va fi caldă. Cerul va fi variabil, cu înnorări temporar accentuate. În prima zi local va ploua, iar în cea de a doua pe arii relativ extinse se vor semnala precipitații predominant sub formă de ploaie, trecător lapoviță și ninsoare la peste 2000 m. Izolat vor fi cantități de 15...25 l/mp. Vântul va sufla slab și moderat, cu intensificări temporare de 40-60 km/h. Se va semnala pe alocuri ceață.","temperaturi_prognozate":{"peste_1800m":{"minime":"-2..3 grade","maxime":"2...8 grade"},"sub_1800m":{"minime":"3...5 grade","maxime":"8...14 grade"}}}};
+
+init();
+</script>
+</body>
+</html>
